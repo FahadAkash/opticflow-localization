@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>OptiFlow.Opal</RootNamespace>
+    <AssemblyName>OptiFlow.Opal</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OptiFlow.Application\OptiFlow.Application.csproj" />
+  </ItemGroup>
+
+  <!-- Optimizely.Opal.Tools reference deferred to P1 milestone -->
+  <!-- Verify package existence before adding -->
+
+</Project>

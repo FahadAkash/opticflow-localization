@@ -1,0 +1,50 @@
+﻿## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+TestResults/
+coverage/
+
+## Secrets & Environment
+.env
+.env.*
+!.env.example
+secrets.json
+appsettings.*.local.json
+*.pem
+*.key
+*.pfx
+*.p12
+
+## Agent Runtime Logs
+.agents/hooks/*.log
+
+## Frontend (Node / Vite)
+node_modules/
+dist/
+.vite/
+
+## IDE & OS
+.vs/
+.vscode/
+.idea/
+*.DotSettings.user
+*.swp
+*~
+Thumbs.db
+.DS_Store
+
+## Docker
+docker-compose.override.yml

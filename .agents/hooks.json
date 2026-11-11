@@ -1,0 +1,53 @@
+﻿{
+  "secret-scanner": {
+    "PreToolUse": [
+      {
+        "matcher": "write_file|edit_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c hooks\\secret-scan.cmd",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "command-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c hooks\\command-guard.cmd",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "dotnet-build-check": {
+    "PostToolUse": [
+      {
+        "matcher": "write_file|edit_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c hooks\\build-check.cmd",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  },
+  "architecture-reminder": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "cmd /c hooks\\arch-reminder.cmd",
+        "timeout": 5
+      }
+    ]
+  }
+}

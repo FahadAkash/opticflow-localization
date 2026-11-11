@@ -1,0 +1,4 @@
+apiVersion: 1
+
+datasources: []
+# Add data sources here as they are configured (e.g., Tempo for traces, Prometheus for metrics)

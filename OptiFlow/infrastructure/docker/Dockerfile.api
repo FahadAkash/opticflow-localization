@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
+WORKDIR /app
+EXPOSE 8080
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+WORKDIR /src
+
+# Copy solution and project files for layer caching
+COPY Directory.Build.props Directory.Packages.props ./
+COPY src/OptiFlow.Domain/OptiFlow.Domain.csproj src/OptiFlow.Domain/
+COPY src/OptiFlow.Application/OptiFlow.Application.csproj src/OptiFlow.Application/
+COPY src/OptiFlow.Infrastructure/OptiFlow.Infrastructure.csproj src/OptiFlow.Infrastructure/
+COPY src/OptiFlow.Api/OptiFlow.Api.csproj src/OptiFlow.Api/
+
+RUN dotnet restore src/OptiFlow.Api/OptiFlow.Api.csproj
+
+# Copy source and build
+COPY src/ src/
+RUN dotnet publish src/OptiFlow.Api/OptiFlow.Api.csproj \
+    -c Release -o /app/publish --no-restore
+
+FROM base AS final
+COPY --from=build /app/publish .
+USER $APP_UID
+ENTRYPOINT ["dotnet", "OptiFlow.Api.dll"]

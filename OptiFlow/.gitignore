@@ -1,0 +1,49 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## User Secrets
+secrets.json
+appsettings.*.local.json
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+## IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*~
+
+## OS
+Thumbs.db
+.DS_Store
+
+## Docker
+docker-compose.override.yml
+
+## Test results
+TestResults/
+coverage/
+
+## Rider
+*.DotSettings.user
+
+## Infrastructure secrets
+infrastructure/docker/.env
+infrastructure/grafana/provisioning/dashboards/*.json.bak

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>OptiFlow.Domain</RootNamespace>
+    <AssemblyName>OptiFlow.Domain</AssemblyName>
+  </PropertyGroup>
+
+  <!-- Domain MUST NOT reference any infrastructure packages -->
+  <!-- No EF Core, no Npgsql, no HTTP, no JSON serialization attributes -->
+
+</Project>

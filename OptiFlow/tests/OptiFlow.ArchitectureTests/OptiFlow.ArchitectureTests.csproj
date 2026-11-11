@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>OptiFlow.ArchitectureTests</RootNamespace>
+    <AssemblyName>OptiFlow.ArchitectureTests</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OptiFlow.Domain\OptiFlow.Domain.csproj" />
+    <ProjectReference Include="..\..\src\OptiFlow.Application\OptiFlow.Application.csproj" />
+    <ProjectReference Include="..\..\src\OptiFlow.Infrastructure\OptiFlow.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\OptiFlow.Api\OptiFlow.Api.csproj" />
+    <ProjectReference Include="..\..\src\OptiFlow.Worker\OptiFlow.Worker.csproj" />
+    <ProjectReference Include="..\..\src\OptiFlow.Opal\OptiFlow.Opal.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+</Project>
