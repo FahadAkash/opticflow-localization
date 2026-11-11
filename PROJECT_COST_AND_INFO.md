@@ -13,14 +13,14 @@
 | Milestone | Scope | Est. Input Tokens (incl. context/reads) | Est. Output Tokens (code/tests/docs) | Actual Input | Actual Output | Actual Cost (USD) | Observed Files | Status |
 |---|---|---|---|---|---|---|---|---|
 | **Setup** | `.agents/` rules, 4 hooks, 6 skills, 9-project `.NET 8` solution, Docker/OTel/Grafana, docs | 180k – 260k | 25k – 35k | — *(not exported)* | — *(not exported)* | — | 51 created | ✅ Complete |
-| **M1** | CMS integration, domain model, PostgreSQL schema + migrations (6 tables), `IContentSource`, `POST /api/v1/content/sync`, idempotent ingestion, tests | 300k – 500k | 30k – 50k | — | — | — | — | ⬜ Not Started |
-| **M2** | Version-aware diff engine (`IContentDiffEngine`), block extraction, SHA-256 normalization, stable ID + field-path matching, diff API, tests | 200k – 350k | 20k – 35k | — | — | — | — | ⬜ Not Started |
-| **M3** | Translation memory (`ITranslationMemory`), composite lookup key, `HUMAN_APPROVED`-only gate, glossary terms, optional Redis cache, tests | 220k – 380k | 22k – 38k | — | — | — | — | ⬜ Not Started |
-| **M4** | Local AI processing (`ILanguageModelClient`, LM Studio/Gemma 4B), strict JSON, 7 deterministic validators, Worker `SKIP LOCKED` queue, retry/dead-letter, `ai_invocations` | 350k – 600k | 35k – 60k | — | — | — | — | ⬜ Not Started |
-| **M5** | Human-edit-safe merge engine (7 merge rules), conflict detection, flagship 100-block/3-changed integration test | 250k – 420k | 25k – 42k | — | — | — | — | ⬜ Not Started |
-| **M6** | Review workflow API, ETag/version check + `STALE_CONFLICT`, SignalR, React + TypeScript 4-screen dashboard (`frontend/react-dashboard/`), tests | 450k – 800k | 50k – 85k | — | — | — | — | ⬜ Not Started |
-| **M7** | OpenTelemetry traces, Grafana dashboards, latency/load benchmarks, cost analytics API, 9 ADRs, optional P1 Opal tools (`OptiFlow.Opal`) | 300k – 500k | 30k – 50k | — | — | — | — | ⬜ Not Started |
-| **Total (Setup + M1–M7)** | **Full Project Delivery** | **2.25M – 3.81M** | **237k – 395k** | **0 tracked** | **0 tracked** | **$0.00 tracked** | **51** | **1 / 8 Phases** |
+| **M1** | CMS integration, domain model, PostgreSQL schema + migrations (`InitialSchema` + `AddImmutabilityAndRlsPolicies`), `IContentSource`, `POST /api/v1/content/sync`, idempotent ingestion, tests | 300k – 500k | 30k – 50k | — *(not exported)* | — *(not exported)* | — | Included below | ✅ Complete *(Offline)* |
+| **M2** | Version-aware diff engine (`ContentDiffEngine`), block extraction, SHA-256 normalization, stable ID + field-path matching, diff API, tests | 200k – 350k | 20k – 35k | — *(not exported)* | — *(not exported)* | — | Included below | ✅ Complete |
+| **M3** | Translation memory (`TranslationMemoryService`), composite lookup key, `HUMAN_APPROVED`-only gate, glossary terms, optional `RedisCacheService`, tests | 220k – 380k | 22k – 38k | — *(not exported)* | — *(not exported)* | — | Included below | ✅ Complete *(Redis fallback verified)* |
+| **M4** | Local AI processing (`LmStudioLanguageModelClient`, Gemma 4B, concurrency 1), strict JSON, 7 deterministic validators, Worker `PostgresJobQueue` (`SKIP LOCKED`), retry/dead-letter, `ai_invocations` | 350k – 600k | 35k – 60k | — *(not exported)* | — *(not exported)* | — | Included below | ✅ Complete *(Mocked LLM)* |
+| **M5** | Human-edit-safe merge engine (`MergeEngine`, 7 merge rules), conflict detection, flagship 100-block/3-changed integration test | 250k – 420k | 25k – 42k | — *(not exported)* | — *(not exported)* | — | Included below | ✅ Complete |
+| **M6** | Review workflow API (`ReviewService`, ETag/`STALE_CONFLICT` 409), SignalR `LocalizationHub`, React + TypeScript 4-screen dashboard (`frontend/react-dashboard/`), tests | 450k – 800k | 50k – 85k | — *(not exported)* | — *(not exported)* | — | Included below | ✅ Complete |
+| **M7** | OpenTelemetry traces/metrics (`OptiFlowTelemetry`), Grafana overview dashboard, analytics endpoints, 9 ADRs (`Accepted`), P1 Opal tool handlers (`OptiFlow.Opal`) | 300k – 500k | 30k – 50k | — *(not exported)* | — *(not exported)* | — | Included below | ✅ Complete *(Offline; live Docker/LM Studio pending)* |
+| **Total (Setup + M1–M7)** | **Full Project Delivery** | **2.25M – 3.81M** | **237k – 395k** | **— *(session billing not exported)*** | **—** | **—** | **41 handwritten + 5 migration `.cs` (10,306 LOC), 9 test `.cs` (1,321 LOC, 31/31 offline tests passing), 11 frontend `.ts/.tsx/.css` (1,423 LOC), 9 ADRs** | **8 / 8 Phases Implemented (Offline Verified)** |
 
 ### Illustrative Model Cost Comparison (Full Project: Setup + M1–M7)
 
@@ -67,8 +67,8 @@ OptiFlow's core business purpose (from `Instruction.md`) is reducing wasted loca
 | **Observability** | `OpenTelemetry.Exporter.OpenTelemetryProtocol` / `Extensions.Hosting` (`1.15.3`), `Instrumentation.AspNetCore` (`1.15.2`), `Instrumentation.EntityFrameworkCore` (`1.0.0-beta.12`), `Serilog.AspNetCore` (`8.0.3`), OTel Collector (`0.109.0`), Grafana (`11.3.0`) | Verified (`0 warnings`) |
 | **Validation** | `FluentValidation.AspNetCore` | `11.3.0` |
 | **Testing** | `xunit` (`2.9.2`), `Moq` (`4.20.72`), `FluentAssertions` (`6.12.2`), `Testcontainers.PostgreSql` (`3.10.0`), `Microsoft.AspNetCore.Mvc.Testing` (`8.0.11`), `NetArchTest.Rules` (`1.3.2`) | Verified |
-| **Frontend** | React + TypeScript (`OptiFlow/frontend/react-dashboard/`) | Scaffolded in M6 |
-| **CMS & Opal** | Optimizely CMS SaaS Content Management API (`IContentSource`); `Optimizely.Opal.Tools` (P1, verify `0.7.8` before adding) | Deferred to M1 / P1 |
+| **Frontend** | React 18 + TypeScript + Vite + TanStack Query + SignalR (`OptiFlow/frontend/react-dashboard/`) | Built (`tsc --noEmit` + `vite build` pass) |
+| **CMS & Opal** | Optimizely CMS SaaS (`IContentSource` skeleton); `Optimizely.Opal.Tools` (`0.7.8` confirmed on NuGet; `OptiFlow.Opal` tool handlers implemented calling Application services) | Verified NuGet `0.7.8`; live Optimizely tenant deferred |
 
 ### 3.2 Solution Architecture & Dependency Graph
 

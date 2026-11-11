@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\src\OptiFlow.Domain\OptiFlow.Domain.csproj" />
     <ProjectReference Include="..\..\src\OptiFlow.Application\OptiFlow.Application.csproj" />
     <ProjectReference Include="..\..\src\OptiFlow.Infrastructure\OptiFlow.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\OptiFlow.Opal\OptiFlow.Opal.csproj" />
   </ItemGroup>
 
   <ItemGroup>
