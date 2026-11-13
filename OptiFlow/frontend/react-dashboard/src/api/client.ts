@@ -2,6 +2,7 @@ import type {
   ApiError,
   ConnectionResponse,
   ContentItemSummary,
+  ContentPreviewResponse,
   ContentVersionResponse,
   CostAnalyticsResponse,
   DevTokenResponse,
@@ -98,12 +99,25 @@ export const optiFlowApi = {
   listVersions: (contentId: string): Promise<readonly ContentVersionResponse[]> =>
     requestJson<readonly ContentVersionResponse[]>(`/api/v1/content/${contentId}/versions`),
 
+  simulateCmsUpdate: (scenario: 'v2' | 'rollback'): Promise<{ readonly scenario: string; readonly message: string }> =>
+    requestJson<{ readonly scenario: string; readonly message: string }>(
+      `/api/v1/content/simulate-cms-update?scenario=${scenario}`,
+      { method: 'POST' }
+    ),
+
   getDiff: (contentId: string, fromVersionId?: string, toVersionId?: string): Promise<DiffResponse> => {
     const params = new URLSearchParams();
     if (fromVersionId) params.set('fromVersionId', fromVersionId);
     if (toVersionId) params.set('toVersionId', toVersionId);
     const qs = params.toString();
     return requestJson<DiffResponse>(`/api/v1/content/${contentId}/diff${qs ? `?${qs}` : ''}`);
+  },
+
+  getContentPreview: (contentId: string, locale?: string): Promise<ContentPreviewResponse> => {
+    const params = new URLSearchParams();
+    if (locale) params.set('locale', locale);
+    const qs = params.toString();
+    return requestJson<ContentPreviewResponse>(`/api/v1/content/${contentId}/preview${qs ? `?${qs}` : ''}`);
   },
 
   listJobs: (): Promise<readonly JobStatusResponse[]> =>
@@ -122,6 +136,13 @@ export const optiFlowApi = {
 
   getJobBlocks: (jobId: string): Promise<readonly JobBlockResponse[]> =>
     requestJson<readonly JobBlockResponse[]>(`/api/v1/localization/jobs/${jobId}/blocks`),
+
+  listReviews: (status?: string): Promise<readonly ReviewTaskResponse[]> => {
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    const qs = params.toString();
+    return requestJson<readonly ReviewTaskResponse[]>(`/api/v1/reviews${qs ? `?${qs}` : ''}`);
+  },
 
   listPendingReviews: (): Promise<readonly ReviewTaskResponse[]> =>
     requestJson<readonly ReviewTaskResponse[]>('/api/v1/reviews'),

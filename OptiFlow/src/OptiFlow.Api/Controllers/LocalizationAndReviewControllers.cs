@@ -7,6 +7,7 @@ using OptiFlow.Application.Abstractions;
 using OptiFlow.Application.Contracts;
 using OptiFlow.Domain.Common;
 using OptiFlow.Domain.Entities;
+using OptiFlow.Domain.Enums;
 using OptiFlow.Domain.Interfaces;
 using OptiFlow.Domain.ValueObjects;
 
@@ -173,10 +174,14 @@ public sealed class ReviewsController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<ReviewTaskResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListPending(CancellationToken cancellationToken)
+    public async Task<IActionResult> List(
+        [FromQuery] ReviewStatus? status,
+        CancellationToken cancellationToken)
     {
-        IReadOnlyList<ReviewTaskResponse> pending = await _reviewService.ListPendingAsync(cancellationToken);
-        return Ok(pending);
+        IReadOnlyList<ReviewTaskResponse> items = status.HasValue
+            ? await _reviewService.ListAsync(status.Value, cancellationToken)
+            : await _reviewService.ListPendingAsync(cancellationToken);
+        return Ok(items);
     }
 
     [HttpPost("{id:guid}/approve")]

@@ -13,6 +13,7 @@ namespace OptiFlow.Application.Localization;
 public sealed class LocalizationOrchestrator : ILocalizationOrchestrator
 {
     private static readonly ActivitySource TelemetrySource = new("OptiFlow.Application");
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const string DefaultGlossaryVersion = "v1";
     private const string PromptVersion = "gemma4b-json-v1";
 
@@ -428,7 +429,7 @@ public sealed class LocalizationOrchestrator : ILocalizationOrchestrator
                     job.SourceVersionId,
                     cancellationToken).ConfigureAwait(false);
 
-                string validationJson = JsonSerializer.Serialize(validation);
+                string validationJson = JsonSerializer.Serialize(validation, JsonOptions);
 
                 await _repository.AddAiInvocationAsync(
                     new AiInvocation(

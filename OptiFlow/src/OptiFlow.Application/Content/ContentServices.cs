@@ -372,6 +372,93 @@ public sealed class ContentSyncService : IContentSyncService
                 b.Action,
                 b.Ordinal)).ToList()));
     }
+
+    public async Task<Result<ContentPreviewResponse>> GetPreviewAsync(
+        Guid contentItemId,
+        string? locale,
+        CancellationToken cancellationToken)
+    {
+        if (!_tenantContext.HasTenant)
+        {
+            return Result<ContentPreviewResponse>.Failure("Tenant context is missing.", ErrorCodes.PermissionDenied);
+        }
+
+        TenantId tenantId = _tenantContext.CurrentTenantId;
+        var itemId = new ContentItemId(contentItemId);
+        ContentItem? item = await _repository.GetContentItemAsync(tenantId, itemId, cancellationToken).ConfigureAwait(false);
+        if (item is null)
+        {
+            return Result<ContentPreviewResponse>.Failure("Content item not found.", ErrorCodes.NotFound);
+        }
+
+        if (!item.LatestVersionId.HasValue)
+        {
+            return Result<ContentPreviewResponse>.Failure("No versions found for content item.", ErrorCodes.NotFound);
+        }
+
+        ContentVersion? version = await _repository.GetContentVersionAsync(tenantId, item.LatestVersionId.Value, cancellationToken).ConfigureAwait(false);
+        if (version is null)
+        {
+            return Result<ContentPreviewResponse>.Failure("Content version not found.", ErrorCodes.NotFound);
+        }
+
+        IReadOnlyList<LocaleCode> availableLocalesList = await _repository
+            .GetAvailableTranslationLocalesAsync(tenantId, itemId, cancellationToken)
+            .ConfigureAwait(false);
+
+        var allLocales = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { item.SourceLocale.Value };
+        foreach (LocaleCode loc in availableLocalesList)
+        {
+            allLocales.Add(loc.Value);
+        }
+
+        string activeLocale = string.IsNullOrWhiteSpace(locale) ? item.SourceLocale.Value : locale.Trim();
+
+        IReadOnlyDictionary<string, Translation> translations = activeLocale.Equals(item.SourceLocale.Value, StringComparison.OrdinalIgnoreCase)
+            ? new Dictionary<string, Translation>()
+            : await _repository.GetTranslationsAsync(tenantId, itemId, new LocaleCode(activeLocale), cancellationToken).ConfigureAwait(false);
+
+        var previewBlocks = new List<ContentPreviewBlockDto>(version.Blocks.Count);
+        foreach (ContentBlock block in version.Blocks.OrderBy(b => b.Ordinal))
+        {
+            string displayText;
+            string provenance;
+
+            if (activeLocale.Equals(item.SourceLocale.Value, StringComparison.OrdinalIgnoreCase))
+            {
+                displayText = block.SourceText;
+                provenance = "SourceMaster";
+            }
+            else if (translations.TryGetValue(block.BlockKey.Value, out Translation? translation))
+            {
+                displayText = translation.TranslatedText;
+                provenance = translation.Provenance.ToString();
+            }
+            else
+            {
+                displayText = block.SourceText;
+                provenance = "Untranslated";
+            }
+
+            previewBlocks.Add(new ContentPreviewBlockDto(
+                block.BlockKey.Value,
+                block.FieldPath,
+                block.BlockType,
+                block.SourceText,
+                displayText,
+                provenance,
+                block.Ordinal));
+        }
+
+        return Result<ContentPreviewResponse>.Success(new ContentPreviewResponse(
+            item.Id.Value,
+            item.ExternalContentKey.Value,
+            item.ContentType,
+            item.SourceLocale.Value,
+            activeLocale,
+            allLocales.OrderBy(l => l).ToList(),
+            previewBlocks));
+    }
 }
 
 public sealed class WebhookIngestionService : IWebhookIngestionService

@@ -1,5 +1,6 @@
 using OptiFlow.Application.Contracts;
 using OptiFlow.Domain.Common;
+using OptiFlow.Domain.Enums;
 
 namespace OptiFlow.Application.Abstractions;
 
@@ -27,11 +28,20 @@ public interface IContentSyncService
         Guid? fromVersionId,
         Guid? toVersionId,
         CancellationToken cancellationToken);
+
+    Task<Result<ContentPreviewResponse>> GetPreviewAsync(
+        Guid contentItemId,
+        string? locale,
+        CancellationToken cancellationToken);
 }
 
 public interface IReviewService
 {
     Task<IReadOnlyList<ReviewTaskResponse>> ListPendingAsync(CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<ReviewTaskResponse>> ListAsync(
+        ReviewStatus? status,
+        CancellationToken cancellationToken);
 
     Task<Result<ReviewDecisionResponse>> ApproveAsync(
         Guid reviewId,

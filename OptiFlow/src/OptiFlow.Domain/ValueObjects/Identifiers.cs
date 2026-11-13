@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace OptiFlow.Domain.ValueObjects;
 
@@ -109,12 +110,22 @@ public sealed record BlockKey
 
 public sealed record LocaleCode
 {
+    private static readonly Regex LocalePattern =
+        new(@"^[a-zA-Z]{2,3}(?:-[a-zA-Z]{2,4})?(?:-[a-zA-Z0-9]{2,3})?$", RegexOptions.Compiled);
+
     public string Value { get; }
 
     public LocaleCode(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         Value = value.Trim();
+    }
+
+    public static bool IsValid(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return false;
+        string trimmed = value.Trim();
+        return trimmed.Length <= 15 && LocalePattern.IsMatch(trimmed);
     }
 
     public override string ToString() => Value;

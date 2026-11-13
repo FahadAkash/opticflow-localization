@@ -140,6 +140,101 @@ public sealed class LocalTestContentSource : IContentSource
             ContentType: "LandingPage",
             RawPayloadJson: JsonSerializer.Serialize(new { key = "hotel-home-001", version = "v1-etag-001", blocks }),
             Blocks: blocks));
+
+        var frenchBlocks = new List<ContentBlockSnapshot>
+        {
+            new("hero-title", "sections[0].title", "heading", "Bienvenue dans notre hôtel de luxe à Paris", 0),
+            new("hero-cta", "sections[0].ctaLabel", "text", "Réservez votre séjour dès aujourd'hui", 1),
+            new("promo-body", "sections[1].body", "richtext", "<p>Profitez du <strong>petit-déjeuner offert</strong> pendant votre séjour.</p>", 2)
+        };
+
+        SeedSnapshot(new ContentSnapshot(
+            ExternalContentKey: "hotel-paris-001",
+            ExternalVersionKey: "v1-etag-paris-001",
+            Locale: "fr-FR",
+            VersionNumber: 1,
+            ContentType: "LandingPage",
+            RawPayloadJson: JsonSerializer.Serialize(new { key = "hotel-paris-001", version = "v1-etag-paris-001", blocks = frenchBlocks }),
+            Blocks: frenchBlocks));
+
+        var roomsBlocks = new List<ContentBlockSnapshot>
+        {
+            new("rooms-hero-title", "header.title", "heading", "Luxury Suites & Oceanfront Villas", 0),
+            new("rooms-hero-desc", "header.description", "text", "Immerse yourself in panoramic Mediterranean views, private infinity plunge pools, and bespoke Italian marble interiors.", 1),
+            new("suite-azure-title", "suites[0].name", "heading", "The Presidential Azure Penthouse", 2),
+            new("suite-azure-desc", "suites[0].description", "richtext", "<p>Features a <strong>private rooftop terrace</strong>, infinity whirlpool, and personal sommelier service.</p>", 3),
+            new("suite-villa-title", "suites[1].name", "heading", "Riviera Royal Garden Villa", 4),
+            new("suite-villa-desc", "suites[1].description", "richtext", "<p>Direct beach access with private botanical garden and <strong>dedicated 24/7 butler</strong>.</p>", 5),
+            new("rooms-booking-cta", "footer.ctaLabel", "text", "Check Suite Availability", 6)
+        };
+
+        SeedSnapshot(new ContentSnapshot(
+            ExternalContentKey: "hotel-rooms-002",
+            ExternalVersionKey: "v1-etag-rooms-001",
+            Locale: "en",
+            VersionNumber: 1,
+            ContentType: "RoomsPage",
+            RawPayloadJson: JsonSerializer.Serialize(new { key = "hotel-rooms-002", version = "v1-etag-rooms-001", blocks = roomsBlocks }),
+            Blocks: roomsBlocks));
+
+        var diningBlocks = new List<ContentBlockSnapshot>
+        {
+            new("dining-hero-title", "header.title", "heading", "Michelin Gastronomy & Azure Wellness Spa", 0),
+            new("dining-hero-desc", "header.description", "text", "An extraordinary sensory voyage crafted by world-renowned chefs and ancient holistic thalassotherapy rituals.", 1),
+            new("restaurant-title", "dining.restaurantName", "heading", "Le Mirador Oceanfront Restaurant", 2),
+            new("restaurant-desc", "dining.description", "richtext", "<p>Three-star Michelin culinary artistry highlighting <strong>wild Mediterranean seafood</strong> and organic harvest.</p>", 3),
+            new("spa-title", "spa.facilityName", "heading", "Azure Thalasso & Thermal Sanctuary", 4),
+            new("spa-desc", "spa.description", "richtext", "<p>Rejuvenating seawater hydrotherapy, eucalyptus steam grottos, and <strong>custom botanical treatments</strong>.</p>", 5),
+            new("dining-reserve-cta", "footer.ctaLabel", "text", "Reserve a Table or Treatment", 6)
+        };
+
+        SeedSnapshot(new ContentSnapshot(
+            ExternalContentKey: "hotel-dining-003",
+            ExternalVersionKey: "v1-etag-dining-001",
+            Locale: "en",
+            VersionNumber: 1,
+            ContentType: "DiningAndSpaPage",
+            RawPayloadJson: JsonSerializer.Serialize(new { key = "hotel-dining-003", version = "v1-etag-dining-001", blocks = diningBlocks }),
+            Blocks: diningBlocks));
+    }
+
+    public void SimulateCmsUpdateV2(string contentKey = "hotel-home-001", string locale = "en")
+    {
+        var blocks = new List<ContentBlockSnapshot>
+        {
+            new("hero-title", "sections[0].title", "heading", "Welcome to our newly renovated luxury resort", 0),
+            new("hero-cta", "sections[0].ctaLabel", "text", "Book your stay today", 1),
+            new("promo-body", "sections[1].body", "richtext", "<p>Enjoy <strong>complimentary</strong> breakfast during your visit.</p>", 2),
+            new("amenities-banner", "sections[2].banner", "text", "Complimentary spa access and valet parking included with all suites.", 3)
+        };
+
+        SeedSnapshot(new ContentSnapshot(
+            ExternalContentKey: contentKey,
+            ExternalVersionKey: "v2-etag-002",
+            Locale: locale,
+            VersionNumber: 2,
+            ContentType: "LandingPage",
+            RawPayloadJson: JsonSerializer.Serialize(new { key = contentKey, version = "v2-etag-002", blocks }),
+            Blocks: blocks));
+    }
+
+    public void SimulateCmsRollback(string contentKey = "hotel-home-001", string locale = "en")
+    {
+        var blocks = new List<ContentBlockSnapshot>
+        {
+            new("hero-title", "sections[0].title", "heading", "Welcome to our luxury hotel", 0),
+            new("hero-cta", "sections[0].ctaLabel", "text", "Book your stay today", 1),
+            new("promo-body", "sections[1].body", "richtext", "<p>Enjoy <strong>complimentary</strong> breakfast during your visit.</p>", 2)
+        };
+
+        SeedSnapshot(new ContentSnapshot(
+            ExternalContentKey: contentKey,
+            ExternalVersionKey: "v3-etag-rollback",
+            Locale: locale,
+            VersionNumber: 3,
+            ContentType: "LandingPage",
+            RawPayloadJson: JsonSerializer.Serialize(new { key = contentKey, version = "v3-etag-rollback", blocks }),
+            Blocks: blocks));
     }
 
     private static string BuildKey(string contentKey, string locale) => $"{contentKey}|{locale}";

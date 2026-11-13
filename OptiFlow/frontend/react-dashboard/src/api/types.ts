@@ -85,6 +85,26 @@ export interface DiffResponse {
   readonly blocks: readonly DiffBlockDto[];
 }
 
+export interface ContentPreviewBlock {
+  readonly blockKey: string;
+  readonly fieldPath: string;
+  readonly blockType: string;
+  readonly sourceText: string;
+  readonly displayText: string;
+  readonly provenance: string;
+  readonly ordinal: number;
+}
+
+export interface ContentPreviewResponse {
+  readonly contentItemId: string;
+  readonly externalContentKey: string;
+  readonly contentType: string;
+  readonly sourceLocale: string;
+  readonly activeLocale: string;
+  readonly availableLocales: readonly string[];
+  readonly blocks: readonly ContentPreviewBlock[];
+}
+
 export interface SyncContentResponse {
   readonly contentItemId: string;
   readonly versionId: string;

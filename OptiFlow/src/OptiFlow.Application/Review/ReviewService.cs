@@ -46,7 +46,12 @@ public sealed class ReviewService : IReviewService
         _logger = logger;
     }
 
-    public async Task<IReadOnlyList<ReviewTaskResponse>> ListPendingAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ReviewTaskResponse>> ListPendingAsync(CancellationToken cancellationToken) =>
+        await ListAsync(ReviewStatus.Pending, cancellationToken).ConfigureAwait(false);
+
+    public async Task<IReadOnlyList<ReviewTaskResponse>> ListAsync(
+        ReviewStatus? status,
+        CancellationToken cancellationToken)
     {
         if (!_tenantContext.HasTenant)
         {
@@ -55,7 +60,7 @@ public sealed class ReviewService : IReviewService
 
         TenantId tenantId = _tenantContext.CurrentTenantId;
         IReadOnlyList<ReviewTask> tasks = await _repository
-            .ListPendingReviewsAsync(tenantId, cancellationToken)
+            .ListReviewsAsync(tenantId, status, cancellationToken)
             .ConfigureAwait(false);
 
         var responses = new List<ReviewTaskResponse>(tasks.Count);
@@ -135,8 +140,9 @@ public sealed class ReviewService : IReviewService
             else if (string.Equals(block.Status, "VALIDATION_FAILED", StringComparison.Ordinal) ||
                      block.HasHumanEditConflict)
             {
+                string reason = block.HasHumanEditConflict ? "human-edit conflict" : "validation failure";
                 return Result<ReviewDecisionResponse>.Failure(
-                    "All validation failures and human-edit conflicts must be resolved by the reviewer before approval.",
+                    $"Block '{block.BlockKey.Value}' has an unresolved {reason}. All validation failures and human-edit conflicts must be resolved by the reviewer before approval.",
                     ErrorCodes.ValidationFailed);
             }
         }

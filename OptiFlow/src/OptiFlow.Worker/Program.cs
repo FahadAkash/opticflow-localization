@@ -23,4 +23,11 @@ builder.Services.AddOpenTelemetry()
     });
 
 var host = builder.Build();
+
+using (var scope = host.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<OptiFlow.Infrastructure.Persistence.OptiFlowDbContext>();
+    db.Database.EnsureCreated();
+}
+
 host.Run();

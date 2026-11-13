@@ -35,7 +35,7 @@ public sealed class PostgresJobQueue : IJobQueue
                         FROM localization_jobs
                         WHERE (
                                 (status IN ('Queued', 'RetryWait', 'StaleConflict') AND available_at <= {0})
-                             OR (status IN ('Snapshotting', 'Diffing', 'Translating', 'Validating') AND lease_expires_at < {0})
+                             OR (status IN ('Snapshotting', 'Diffing', 'Translating', 'Validating') AND (lease_expires_at IS NULL OR lease_expires_at < {0}))
                               )
                           AND attempt_count < max_attempts
                         ORDER BY priority DESC, created_at ASC
@@ -81,7 +81,7 @@ public sealed class PostgresJobQueue : IJobQueue
                 .Where(j =>
                     (j.Status is JobStatus.Queued or JobStatus.RetryWait or JobStatus.StaleConflict && j.AvailableAt <= now) ||
                     (j.Status is JobStatus.Snapshotting or JobStatus.Diffing or JobStatus.Translating or JobStatus.Validating &&
-                     j.LeaseExpiresAt.HasValue && j.LeaseExpiresAt.Value < now))
+                     (!j.LeaseExpiresAt.HasValue || j.LeaseExpiresAt.Value < now)))
                 .OrderByDescending(j => j.Priority)
                 .ThenBy(j => j.CreatedAt)
                 .FirstOrDefault();

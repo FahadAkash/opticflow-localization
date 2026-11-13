@@ -27,7 +27,7 @@
 | M3 | Translation Memory | 220k – 380k | 22k – 38k | — | — | `TranslationMemoryService` + `RedisCacheService` | 3 TM unit tests | ✅ Complete |
 | M4 | Local AI Processing | 350k – 600k | 35k – 60k | — | — | `LmStudioLanguageModelClient` + 7 Validators + `PostgresJobQueue` + Worker | 9 Validator/Queue/LM tests | ✅ Complete *(Mocked LLM)* |
 | M5 | Human-Edit-Safe Merge | 250k – 420k | 25k – 42k | — | — | `MergeEngine` + Orchestrator | 3 Merge/State tests + Flagship 100-block E2E | ✅ Complete |
-| M6 | Review + CMS Draft + Dashboard | 450k – 800k | 50k – 85k | — | — | `ReviewService` + SignalR + 4-screen React dashboard | Review/`STALE_CONFLICT` E2E + TS/Vite build | ✅ Complete |
+| M6 | Review + CMS Draft + Dashboard | 450k – 800k | 50k – 85k | — | — | `ReviewService` + SignalR + Multi-Page Preview + Localized Chrome + React dashboard | Review/`STALE_CONFLICT` E2E + TS/Vite build | ✅ Complete |
 | M7 | Benchmarks + Observability + Opal | 300k – 500k | 30k – 50k | — | — | OTel + Grafana + Analytics + `OptiFlow.Opal` + 9 ADRs | 2 Opal/Analytics unit tests | ✅ Complete *(Offline)* |
 
 ### Cumulative Totals
@@ -38,8 +38,10 @@
 | Est. Total Output Tokens (Setup + M1–M7) | 237k – 395k |
 | Tracked Actual Input / Output Tokens | — *(session export not enabled)* |
 | Tracked Actual Cost | — |
-| Production C# Files / Lines (Observed) | 41 handwritten `.cs` (`6,799` LOC) + 5 migration `.cs` (`3,507` LOC) = `46` files (`10,306` LOC) |
-| Frontend Source Files / Lines (Observed) | 11 `.ts/.tsx/.css` files (`1,423` LOC) |
+| Production C# Files / Lines (Observed) | 41 handwritten `.cs` (`7,060` LOC) + 5 migration `.cs` (`3,507` LOC) = `46` files (`10,567` LOC) |
+| Frontend Source Files / Lines (Observed) | 14 `.ts/.tsx/.css` files (`2,150` LOC) |
+| Multi-Page Support | 3 Pages (`hotel-home-001`, `hotel-rooms-002`, `hotel-dining-003`) with interactive nav switching |
+| Localized Chrome | Top announcement, brand tagline, nav bar, 4 amenity cards, and footer localized for BD, es-ES, de-DE, fr-FR, en |
 | Tests Passing (Observed Offline) | **31 / 31 passing** (`6` Architecture, `19` Unit, `6` offline Integration) + `1` Docker-tagged Testcontainers test (`[Trait("Category", "Docker")]`) |
 
 ---

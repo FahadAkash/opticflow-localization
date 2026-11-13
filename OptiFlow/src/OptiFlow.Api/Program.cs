@@ -19,6 +19,7 @@ using OptiFlow.Domain.Interfaces;
 using OptiFlow.Domain.ValueObjects;
 using OptiFlow.Infrastructure;
 using OptiFlow.Infrastructure.Observability;
+using OptiFlow.Infrastructure.Persistence;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -145,6 +146,12 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<OptiFlowDbContext>();
+        db.Database.EnsureCreated();
+    }
+
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseCors("DashboardDev");

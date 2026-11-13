@@ -78,6 +78,7 @@ public interface IOptiFlowRepository
     Task AddContentVersionAsync(ContentVersion version, CancellationToken cancellationToken);
 
     Task<IReadOnlyDictionary<string, Translation>> GetTranslationsAsync(TenantId tenantId, ContentItemId itemId, LocaleCode targetLocale, CancellationToken cancellationToken);
+    Task<IReadOnlyList<LocaleCode>> GetAvailableTranslationLocalesAsync(TenantId tenantId, ContentItemId itemId, CancellationToken cancellationToken);
     Task UpsertTranslationAsync(Translation translation, CancellationToken cancellationToken);
 
     Task<TranslationMemoryEntry?> FindApprovedTranslationMemoryAsync(TranslationMemoryKey key, CancellationToken cancellationToken);
@@ -96,6 +97,7 @@ public interface IOptiFlowRepository
     Task<ReviewTask?> GetReviewTaskAsync(TenantId tenantId, ReviewTaskId reviewTaskId, CancellationToken cancellationToken);
     Task<ReviewTask?> GetReviewTaskByJobAsync(TenantId tenantId, JobId jobId, CancellationToken cancellationToken);
     Task<IReadOnlyList<ReviewTask>> ListPendingReviewsAsync(TenantId tenantId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ReviewTask>> ListReviewsAsync(TenantId tenantId, ReviewStatus? status, CancellationToken cancellationToken);
     Task AddReviewTaskAsync(ReviewTask task, CancellationToken cancellationToken);
 
     Task AddAiInvocationAsync(AiInvocation invocation, CancellationToken cancellationToken);

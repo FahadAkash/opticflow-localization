@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Activity, BarChart3, CheckSquare, FileDiff } from 'lucide-react';
+import { Activity, BarChart3, CheckSquare, FileDiff, Globe } from 'lucide-react';
 import { optiFlowApi, setAuthToken } from './api/client';
 import { AnalyticsView } from './components/AnalyticsView';
 import { ContentIntelligenceView } from './components/ContentIntelligenceView';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { HotelPreviewView } from './components/HotelPreviewView';
 import { OperationsView } from './components/OperationsView';
 import { ReviewView } from './components/ReviewView';
 import { useLocalizationHub } from './hooks/useLocalizationHub';
 
-type Screen = 'intelligence' | 'operations' | 'review' | 'analytics';
+type Screen = 'intelligence' | 'operations' | 'review' | 'preview' | 'analytics';
 
 const queryClient = new QueryClient();
 
@@ -64,6 +66,13 @@ function DashboardShell() {
         </button>
         <button
           type="button"
+          className={`nav-btn ${screen === 'preview' ? 'active' : ''}`}
+          onClick={() => setScreen('preview')}
+        >
+          <Globe size={16} /> Hotel Live Preview
+        </button>
+        <button
+          type="button"
           className={`nav-btn ${screen === 'analytics' ? 'active' : ''}`}
           onClick={() => setScreen('analytics')}
         >
@@ -78,6 +87,7 @@ function DashboardShell() {
               {screen === 'intelligence' && 'Content Intelligence'}
               {screen === 'operations' && 'Localization Operations'}
               {screen === 'review' && 'Translation Review (Draft-Only)'}
+              {screen === 'preview' && 'Hotel Home Landing Page (Live Preview)'}
               {screen === 'analytics' && 'Cost & Performance Analytics'}
             </h2>
             <span className="mono" style={{ color: '#64748b' }}>
@@ -110,10 +120,13 @@ function DashboardShell() {
           </div>
         )}
 
-        {screen === 'intelligence' && <ContentIntelligenceView isAuthenticated={token !== null} />}
-        {screen === 'operations' && <OperationsView isAuthenticated={token !== null} />}
-        {screen === 'review' && <ReviewView isAuthenticated={token !== null} />}
-        {screen === 'analytics' && <AnalyticsView isAuthenticated={token !== null} />}
+        <ErrorBoundary key={screen}>
+          {screen === 'intelligence' && <ContentIntelligenceView isAuthenticated={token !== null} />}
+          {screen === 'operations' && <OperationsView isAuthenticated={token !== null} />}
+          {screen === 'review' && <ReviewView isAuthenticated={token !== null} />}
+          {screen === 'preview' && <HotelPreviewView isAuthenticated={token !== null} />}
+          {screen === 'analytics' && <AnalyticsView isAuthenticated={token !== null} />}
+        </ErrorBoundary>
       </main>
     </div>
   );

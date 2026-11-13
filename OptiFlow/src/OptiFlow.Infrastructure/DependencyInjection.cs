@@ -26,17 +26,43 @@ public static class DependencyInjection
         services.AddScoped<ICredentialProtector, DataProtectionCredentialProtector>();
         services.AddScoped<IWebhookSignatureVerifier, HmacWebhookSignatureVerifier>();
 
-        string? pgConnection = configuration.GetConnectionString("DefaultConnection");
-        if (!string.IsNullOrWhiteSpace(pgConnection))
+        string? connectionString = configuration.GetConnectionString("DefaultConnection");
+        string? provider = configuration["DatabaseProvider"];
+
+        bool useSqlite = string.Equals(provider, "Sqlite", StringComparison.OrdinalIgnoreCase) ||
+                         (!string.IsNullOrWhiteSpace(connectionString) &&
+                          (connectionString.Contains(".db", StringComparison.OrdinalIgnoreCase) ||
+                           connectionString.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase)));
+
+        if (useSqlite)
+        {
+            string sqliteConn = string.IsNullOrWhiteSpace(connectionString)
+                ? "Data Source=optiflow_dev.db"
+                : connectionString;
+
+            string rawPath = sqliteConn.Replace("Data Source=", "", StringComparison.OrdinalIgnoreCase).Trim();
+            if (!Path.IsPathRooted(rawPath))
+            {
+                string sharedRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OptiFlow");
+                Directory.CreateDirectory(sharedRoot);
+                sqliteConn = $"Data Source={Path.Combine(sharedRoot, rawPath)}";
+            }
+
+            services.AddDbContext<OptiFlowDbContext>(options =>
+                options.UseSqlite(sqliteConn));
+        }
+        else if (!string.IsNullOrWhiteSpace(connectionString))
         {
             services.AddDbContext<OptiFlowDbContext>(options =>
-                options.UseNpgsql(pgConnection));
+                options.UseNpgsql(connectionString));
         }
         else
         {
-            // Fallback configuration for design-time / override in IntegrationTests
+            // Default in-development when no Postgres connection string is configured: use shared local SQLite
+            string sharedRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OptiFlow");
+            Directory.CreateDirectory(sharedRoot);
             services.AddDbContext<OptiFlowDbContext>(options =>
-                options.UseNpgsql("Host=localhost;Database=optiflow;Username=optiflow"));
+                options.UseSqlite($"Data Source={Path.Combine(sharedRoot, "optiflow_dev.db")}"));
         }
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<OptiFlowDbContext>());

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using FluentValidation;
 using OptiFlow.Application.Contracts;
 
@@ -20,22 +21,38 @@ public sealed class CreateConnectionRequestValidator : AbstractValidator<CreateC
 
 public sealed class SyncContentRequestValidator : AbstractValidator<SyncContentRequest>
 {
+    private static readonly Regex LocalePattern =
+        new(@"^[a-zA-Z]{2,3}(?:-[a-zA-Z]{2,4})?(?:-[a-zA-Z0-9]{2,3})?$", RegexOptions.Compiled);
+
     public SyncContentRequestValidator()
     {
         RuleFor(x => x.ConnectionId).NotEmpty();
         RuleFor(x => x.ExternalContentKey).NotEmpty().MaximumLength(500);
-        RuleFor(x => x.Locale).MaximumLength(20).When(x => x.Locale is not null);
+        RuleFor(x => x.Locale)
+            .MaximumLength(15)
+            .Matches(LocalePattern)
+            .WithMessage("'{PropertyValue}' is not a valid BCP-47 / ISO 639 locale code (e.g. 'es-ES', 'fr-FR', 'BD', 'en').")
+            .When(x => !string.IsNullOrWhiteSpace(x.Locale));
     }
 }
 
 public sealed class CreateJobRequestValidator : AbstractValidator<CreateJobRequest>
 {
+    private static readonly Regex LocalePattern =
+        new(@"^[a-zA-Z]{2,3}(?:-[a-zA-Z]{2,4})?(?:-[a-zA-Z0-9]{2,3})?$", RegexOptions.Compiled);
+
     public CreateJobRequestValidator()
     {
         RuleFor(x => x.ContentId).NotEmpty();
         RuleFor(x => x.SourceVersionId).NotEmpty();
-        RuleFor(x => x.TargetLocales).NotEmpty();
-        RuleForEach(x => x.TargetLocales).NotEmpty().MaximumLength(20);
+        RuleFor(x => x.TargetLocales)
+            .NotEmpty()
+            .WithMessage("At least one target locale must be specified.");
+        RuleForEach(x => x.TargetLocales)
+            .NotEmpty()
+            .MaximumLength(15)
+            .Matches(LocalePattern)
+            .WithMessage("'{PropertyValue}' is not a valid BCP-47 / ISO 639 locale code (e.g. 'es-ES', 'fr-FR', 'BD', 'en'). Gibberish and injection strings are prohibited.");
         RuleFor(x => x.IdempotencyKey).MaximumLength(200).When(x => x.IdempotencyKey is not null);
     }
 }

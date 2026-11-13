@@ -112,6 +112,21 @@ public sealed class OptiFlowRepository : IOptiFlowRepository
         return rows.ToDictionary(t => t.BlockKey.Value, t => t, StringComparer.Ordinal);
     }
 
+    public async Task<IReadOnlyList<LocaleCode>> GetAvailableTranslationLocalesAsync(
+        TenantId tenantId,
+        ContentItemId itemId,
+        CancellationToken cancellationToken)
+    {
+        List<LocaleCode> locales = await _db.Translations
+            .Where(t => t.TenantId == tenantId && t.ContentItemId == itemId)
+            .Select(t => t.TargetLocale)
+            .Distinct()
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return locales;
+    }
+
     public async Task UpsertTranslationAsync(Translation translation, CancellationToken cancellationToken) =>
         await _db.Translations.AddAsync(translation, cancellationToken).ConfigureAwait(false);
 
@@ -216,8 +231,11 @@ public sealed class OptiFlowRepository : IOptiFlowRepository
             .ConfigureAwait(false);
 
     public async Task<IReadOnlyList<ReviewTask>> ListPendingReviewsAsync(TenantId tenantId, CancellationToken cancellationToken) =>
+        await ListReviewsAsync(tenantId, ReviewStatus.Pending, cancellationToken).ConfigureAwait(false);
+
+    public async Task<IReadOnlyList<ReviewTask>> ListReviewsAsync(TenantId tenantId, ReviewStatus? status, CancellationToken cancellationToken) =>
         await _db.ReviewTasks
-            .Where(r => r.TenantId == tenantId && r.Status == ReviewStatus.Pending)
+            .Where(r => r.TenantId == tenantId && (status == null || r.Status == status))
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);

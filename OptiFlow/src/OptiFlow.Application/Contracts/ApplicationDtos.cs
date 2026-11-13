@@ -58,6 +58,24 @@ public sealed record DiffResponse(
     int DeletedCount,
     IReadOnlyList<DiffBlockDto> Blocks);
 
+public sealed record ContentPreviewBlockDto(
+    string BlockKey,
+    string FieldPath,
+    string BlockType,
+    string SourceText,
+    string DisplayText,
+    string Provenance,
+    int Ordinal);
+
+public sealed record ContentPreviewResponse(
+    Guid ContentItemId,
+    string ExternalContentKey,
+    string ContentType,
+    string SourceLocale,
+    string ActiveLocale,
+    IReadOnlyList<string> AvailableLocales,
+    IReadOnlyList<ContentPreviewBlockDto> Blocks);
+
 public sealed record CreateJobRequest(
     Guid ContentId,
     Guid SourceVersionId,

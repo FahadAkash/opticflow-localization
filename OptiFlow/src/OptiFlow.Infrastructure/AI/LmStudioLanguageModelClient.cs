@@ -15,8 +15,8 @@ public sealed class LmStudioOptions
 {
     public const string SectionName = "LMStudio";
     public string BaseUrl { get; set; } = "http://localhost:1234";
-    public string ModelName { get; set; } = "gemma-3-4b-it";
-    public int TimeoutSeconds { get; set; } = 60;
+    public string ModelName { get; set; } = "google/gemma-4-12b-qat";
+    public int TimeoutSeconds { get; set; } = 120;
     public int MaxConcurrency { get; set; } = 1;
 }
 
@@ -83,7 +83,7 @@ public sealed class LmStudioLanguageModelClient : ILanguageModelClient
             {
                 model = _options.ModelName,
                 temperature = 0.1,
-                max_tokens = 1024,
+                max_tokens = 2048,
                 messages = new[]
                 {
                     new
@@ -141,6 +141,10 @@ public sealed class LmStudioLanguageModelClient : ILanguageModelClient
             int inputTokens = completion?.Usage?.PromptTokens ?? 0;
             int outputTokens = completion?.Usage?.CompletionTokens ?? 0;
             string? messageContent = completion?.Choices?.FirstOrDefault()?.Message?.Content;
+            if (string.IsNullOrWhiteSpace(messageContent))
+            {
+                messageContent = completion?.Choices?.FirstOrDefault()?.Message?.ReasoningContent;
+            }
 
             if (string.IsNullOrWhiteSpace(messageContent))
             {
@@ -233,6 +237,9 @@ public sealed class LmStudioLanguageModelClient : ILanguageModelClient
     private sealed class ChatMessage
     {
         public string? Content { get; set; }
+
+        [JsonPropertyName("reasoning_content")]
+        public string? ReasoningContent { get; set; }
     }
 
     private sealed class ChatUsage
