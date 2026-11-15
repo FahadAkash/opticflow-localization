@@ -1,4 +1,4 @@
-﻿# optiflow-localization
+﻿# opticflow-localization
 
 Incremental block-level localization engine for **Optimizely CMS** built with **.NET 8**, **PostgreSQL**, **React + TypeScript**, **OpenTelemetry**, and local LLM inference (**Gemma** via **LM Studio**).
 
